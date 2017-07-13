@@ -1,0 +1,28 @@
+﻿
+@{
+    ViewBag.Title = "Search";
+}
+<head>
+    <link href="@Url.Content("~/Content/themes/base/jquery-ui.min.css")" rel="stylesheet" />
+    <script src="http://code.jquery.com/jquery-1.9.1.js"></script>
+    <script src="http://code.jquery.com/ui/1.10.2/jquery-ui.js"></script>
+    <script type="text/javascript">
+        $(function () {
+            function onSearchClick() {
+                var searchString = $('#searchBox').val();
+                window.location = window.location.href + '?searchString=' + searchString;
+            }
+            $('#searchButton').click(function () {
+                return onSearchClick();
+            })
+        })
+    </script>
+</head>
+<h2>Search</h2>
+
+<p>Input name:@Html.TextBox("searchBox","",new { id = "searchBox" })</p>
+<p><input type="button" id="searchButton" value="Search"/></p>
+@if(ViewBag.ErrorMessage != null)
+{
+    <p class="text-danger">@ViewBag.ErrorMessage</p>
+}

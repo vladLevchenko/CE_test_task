@@ -1,0 +1,115 @@
+﻿@model WebApplication1.Models.Student
+@{
+    ViewBag.Title = "Index";
+}
+<head>
+    <link href="@Url.Content("~/Content/themes/base/jquery-ui.min.css")" rel="stylesheet" />
+    <script src="http://code.jquery.com/jquery-1.9.1.js"></script>
+    <script src="http://code.jquery.com/ui/1.10.2/jquery-ui.js"></script>
+    <script type="text/javascript">
+        $(function () {
+            function enableDays(date, dayNumber, startDate, endDate) {  
+
+                if (date.getDay() == dayNumber && ((!startDate && !endDate) || (startDate && endDate && (date < startDate || date > endDate)))) {
+                    return [true];
+                } else {
+                    return [false];
+                }            
+            }
+           
+            function getMinEndDate()
+            {
+                var now = new Date();
+                if (now.getDay() == 1) {
+                    return now;
+                }
+                else {
+                    now.setDate(now.getDate() + (1 + 7 - now.getDay()) % 7);
+                    return now;
+                }
+            }
+
+            function onStartDateChange(dateText) {
+                $('#endDate').datepicker('option', 'minDate', null);
+                $('#endDate').datepicker('option', 'maxDate', null);
+                var theDate = new Date(Date.parse($(this).datepicker('getDate')));
+                var currentStartDate = new Date(Date.parse($('#startDateHolder').val()));
+                $('#endDate').datepicker('option', 'minDate', theDate);
+                if (theDate < currentStartDate) {
+                   
+                    var t = currentStartDate.getDate() + (6 - currentStartDate.getDay() - 1) - 7;
+                    var lastFriday = new Date();
+                    lastFriday.setDate(t);
+                    $('#endDate').datepicker('option', 'maxDate', lastFriday);
+                }
+                
+            }
+
+            function onCourseAdd() {
+                var startDateText = $('#startDate').val();
+                var endDateText = $('#endDate').val();
+                if (startDateText == '' || endDateText == '')
+                    return;
+                var oldstartDateText = $('#startDateHolder').val();
+                var oldendDateText = $('#endDateHolder').val();
+                var startDate = new Date(Date.parse(startDateText));
+                var endDate = new Date(Date.parse(endDateText));
+                var oldstartDate = new Date(Date.parse(oldstartDateText));
+                var oldendDate = new Date(Date.parse(oldendDateText));
+
+                if (oldstartDateText == '' || startDate < oldstartDate) {
+                    $('#startDateHolder').val(startDateText);
+                    oldstartDate = startDate;
+                }
+                if (oldstartDateText == '' || endDate > oldendDate) {
+                    $('#endDateHolder').val(endDateText);
+                    oldendDate = endDate;
+                }
+                $('#startDate').val('');
+                $('#startDate').datepicker('option', 'beforeShowDay', function (date) {
+                    return enableDays(date, 1, oldstartDate, oldendDate);
+                });
+                $('#endDate').val('');
+                $('#endDate').datepicker('option', 'beforeShowDay', function (date) {
+                    return enableDays(date, 5, oldstartDate, oldendDate);
+                });
+
+            }
+
+            $('#startDate').datepicker({
+                onSelect: onStartDateChange,
+                beforeShowDay: function (date) {
+                    return enableDays(date, 1, null, null);
+                },
+                minDate: new Date()
+            });
+            $('#endDate').datepicker({               
+                beforeShowDay: function (date) {
+                    return enableDays(date, 5, null, null);
+                },
+                minDate: getMinEndDate()
+            });
+            $('#addCourse').click(function () {
+                return onCourseAdd();
+            })
+        })
+    </script>
+</head>
+<h2>Index</h2>
+<p>1.Add new student</p>
+@using (Html.BeginForm("SaveStudentCourse", "User"))
+{
+    <p>Student name:@Html.TextBoxFor(model=>model.Name)</p>
+    <p>Student mail:@Html.TextBoxFor(model => model.Email)</p>
+    <p>New course start date:@Html.TextBox("Start Date", "", new { @class = "date-picker", id="startDate" })</p>
+    <p>New course end date:@Html.TextBox("End Date", "", new { @class = "date-picker", id = "endDate" })</p>
+    <p><input type="button" value="Add course" id="addCourse"></p>
+    <p>Courses start date:@Html.TextBoxFor(model => model.StartDate, new { id = "startDateHolder", @readonly = "readonly" })</p>
+    <p>Courses end date:@Html.TextBoxFor(model => model.EndDate, new { id = "endDateHolder", @readonly = "readonly" })</p>
+    <p><input value="Add student" type="submit"/></p>
+}
+
+<p><a href="@Url.Action("Search","User")"> Go to search</a></p>
+
+
+

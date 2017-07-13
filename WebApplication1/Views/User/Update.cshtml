@@ -1,0 +1,64 @@
+﻿@model WebApplication1.Models.Student
+@{
+    ViewBag.Title = "Update";
+}
+<head>
+    <link href="@Url.Content("~/Content/themes/base/jquery-ui.min.css")" rel="stylesheet" />
+    <script src="http://code.jquery.com/jquery-1.9.1.js"></script>
+    <script src="http://code.jquery.com/ui/1.10.2/jquery-ui.js"></script>
+    <script type="text/javascript">
+        $(function () {
+            var startDateText = '@Model.StartDate';
+            var endDateText = '@Model.EndDate';
+            startDate = new Date(Date.parse(startDateText));
+            endDate = new Date(Date.parse(endDateText));
+            function enableDays(date, dayNumber, startDate, endDate) {
+
+                if (date.getDay() == dayNumber && ((!startDate && !endDate) || (startDate && endDate && (date < startDate || date > endDate)))) {
+                    return [true];
+                } else {
+                    return [false];
+                }
+            }
+
+            function onStartDateChange(dateText) {
+                var theDate = new Date(Date.parse($(this).datepicker('getDate')));
+                $('#endDate').datepicker('option', 'minDate', theDate);                
+                $('#startDateHolder').val(dateText);
+            }
+
+            function onEndDateChange(dateText) {
+                $('#endDateHolder').val(dateText);
+
+            }
+            $('#startDate').datepicker({
+                onSelect: onStartDateChange,
+                beforeShowDay: function (date) {
+                    return enableDays(date, 1, null, null);
+                },
+                minDate: startDate,
+                maxDate: endDate
+            });
+            $('#endDate').datepicker({
+                onSelect: onEndDateChange,
+                beforeShowDay: function (date) {
+                    return enableDays(date, 5, null, null);
+                },
+                minDate: startDate,
+                maxDate: endDate
+            });
+        })
+    </script>
+</head>
+<h2>Update</h2>
+@using (Html.BeginForm("Update", "User"))
+{
+    <p>Student name:@Html.TextBoxFor(model => model.Name, new { @readonly = "readonly" })</p>
+    <p>Student mail:@Html.TextBoxFor(model => model.Email, new { @readonly = "readonly" })</p>
+    <p>New holiday start date:@Html.TextBox("Start Date", "", new { @class = "date-picker", id = "startDate" })</p>
+    <p>New holiday end date:@Html.TextBox("End Date", "", new { @class = "date-picker", id = "endDate" })</p>
+    <p><input type="submit" value="Add holiday" id="addHoliday"></p>
+    <p>@Html.HiddenFor(model => model.StartDate, new { id = "startDateHolder", @readonly = "readonly" })</p>
+    <p>@Html.HiddenFor(model => model.EndDate, new { id = "endDateHolder", @readonly = "readonly" })</p>
+}
+
